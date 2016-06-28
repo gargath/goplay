@@ -7,22 +7,9 @@ import ( "io"
 	 "encoding/json"
 	 "os"
 	 "fmt"
-	 "time"
 )
 
 var hostname string
-
-type response_struct struct {
-  Hostname string   `json:"hostname"`
-  Date     time.Time     `json:"date"`
-  Response string   `json:"response"`
-}
-
-func handleError(w http.ResponseWriter, err error) {
-  log.Print(err)
-  w.WriteHeader(http.StatusInternalServerError)
-  io.WriteString(w, fmt.Sprintf("Server failed to process your request: %v", err))
-}
 
 func serve(w http.ResponseWriter, req *http.Request) {
   body, err := ioutil.ReadAll(req.Body)
@@ -36,9 +23,8 @@ func serve(w http.ResponseWriter, req *http.Request) {
     handleError(w, err)
     return
   }
-  response := response_struct {Hostname: hostname, Date: time.Now().UTC(), Response: fmt.Sprintf("Thank you from %v!\n", hostname)}
-  response_json, _ := json.Marshal(response)
-  io.WriteString(w, string(response_json))
+  response, _ := createJsonResponse(fmt.Sprintf("Thank you from %v!\n", hostname))
+  io.WriteString(w, response)
 }
 
 func main() {
