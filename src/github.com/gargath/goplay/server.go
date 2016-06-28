@@ -1,30 +1,22 @@
 package main
 
 import ( "io"
-	 "io/ioutil"
  	 "net/http"
 	 "log"
-	 "encoding/json"
 	 "os"
 )
 
 var hostname string
 
 func serve(w http.ResponseWriter, req *http.Request) {
-  body, err := ioutil.ReadAll(req.Body)
-  if err != nil {
-    handleError(w, err)
-    return
-  }
-  var jsonbody interface{}
-  err = json.Unmarshal(body, &jsonbody)
-  if err != nil {
-    handleError(w, err)
+  if req.Method != "GET" {
+    w.WriteHeader(http.StatusMethodNotAllowed)
     return
   }
   query, _ := parseQuery(req)
   log.Printf("Request: %v", query)
-  response, _ := createJsonResponse(query)
+  result, _ := evaluateQuery(query)
+  response, _ := createJsonResponse(query, result)
   io.WriteString(w, response)
 }
 
