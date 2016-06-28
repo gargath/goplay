@@ -6,7 +6,6 @@ import ( "io"
 	 "log"
 	 "encoding/json"
 	 "os"
-	 "fmt"
 )
 
 var hostname string
@@ -23,7 +22,9 @@ func serve(w http.ResponseWriter, req *http.Request) {
     handleError(w, err)
     return
   }
-  response, _ := createJsonResponse(fmt.Sprintf("Thank you from %v!\n", hostname))
+  query, _ := parseQuery(req)
+  log.Printf("Request: %v", query)
+  response, _ := createJsonResponse(query)
   io.WriteString(w, response)
 }
 
@@ -33,6 +34,6 @@ func main() {
   if err != nil {
     log.Panicf("Unable to get hostname %v", err)
   }
-  http.HandleFunc("/", serve)
+  http.HandleFunc("/v1/", serve)
   log.Fatal(http.ListenAndServe(":8877", nil))
 }
